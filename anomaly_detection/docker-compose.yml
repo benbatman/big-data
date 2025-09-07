@@ -1,0 +1,54 @@
+# docker-compose.yml
+services:
+  kafka:
+    image: "bitnami/kafka:latest"
+    ports:
+      - "9092:9092"
+    environment:
+      # --- KRaft settings ---
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9094
+      # --- Multi-Listener Settings ---
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9093,EXTERNAL://:9092,CONTROLLER://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9093,EXTERNAL://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    networks:
+      - data-network
+
+  spark-master:
+    image: "bitnami/spark:3.5.1"
+    user: root
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - ./spark:/opt/bitnami/spark/app
+    networks:
+      - data-network
+
+  spark-worker:
+    image: "bitnami/spark:3.5.1"
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - ./spark:/opt/bitnami/spark/app
+    networks:
+      - data-network
+    depends_on:
+      - spark-master
+
+networks:
+  data-network:
+    driver: bridge
