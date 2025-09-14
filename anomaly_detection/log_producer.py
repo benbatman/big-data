@@ -1,7 +1,7 @@
 import time
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 from kafka import KafkaProducer
@@ -51,7 +51,7 @@ def create_log_message():
     """
 
     return {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp_ms": int(time.time() * 1000),  # epoch ms
         "ip": random.choice(user_ips),
         "method": random.choice(["GET", "POST", "PUT", "DELETE"]),
         "url": random.choice(web_pages),
@@ -71,13 +71,17 @@ def main():
     )
 
     # Topic we're sending messages to
-    kafka_topic = "web_logs"
+    kafka_topic = "web_logs_v2"
     logger.info(f"Producing messages to topic {kafka_topic}")
 
     while True:
         log_message = create_log_message()
         producer.send(kafka_topic, log_message)
         logger.info(f"Produced log message: {log_message}")
+        if random.random() < 0.02:
+            now_epoch_ms = int(time.time() * 1000)
+            now_iso = datetime.now(timezone.utc).isoformat()
+            logger.info(f"[PRODUCER NOW] epoch_ms={now_epoch_ms}, iso={now_iso}")
         time.sleep(random.uniform(0.1, 1.5))
 
 

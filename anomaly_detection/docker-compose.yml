@@ -20,7 +20,7 @@ services:
       - data-network
 
   spark-master:
-    image: "bitnami/spark:3.5.1"
+    image: "spark-custom-image"
     user: root
     environment:
       - SPARK_MODE=master
@@ -37,7 +37,7 @@ services:
       - data-network
 
   spark-worker:
-    image: "bitnami/spark:3.5.1"
+    image: "spark-custom-image"
     user: root
     environment:
       - SPARK_MODE=worker
@@ -49,6 +49,39 @@ services:
     depends_on:
       - spark-master
 
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password123
+      - DOCKER_INFLUXDB_INIT_ORG=my-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=spark-bucket-v2
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    networks:
+      - data-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    networks:
+      - data-network
+
 networks:
   data-network:
     driver: bridge
+
+volumes:
+  influxdb-data:
+    driver: local
+  grafana-data:
+    driver: local
