@@ -1,6 +1,6 @@
 # Real-Time Log Analytics & Anomaly Detection Pipeline
 
-This project demonstrates a real-time log analytics and anomaly detection pipeline using Apache Spark Structured Streaming, Kafka, and InfluxDB. It simulates web server logs, processes them in real-time to detect anomalies, and stores the results in InfluxDB/Grafana for visualization and observability.
+This project demonstrates a simulated real-time log analytics and anomaly detection pipeline using Apache Spark Structured Streaming, Kafka, and InfluxDB. It simulates web server logs, processes them in real-time to detect anomalies, and stores the results in InfluxDB/Grafana for visualization and observability.
 
 ## Architecture
 
