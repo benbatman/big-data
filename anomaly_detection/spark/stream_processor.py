@@ -72,7 +72,7 @@ def write_to_influxdb(df, epoch_id):
             .field("avg_response_time", float(row["avg_response_time"]))
             .field("error_count", int(row["error_count"]))
             .field("stddev_response_time", stddev_val)
-            .time(int(row["start"]))  # timestamp for the data point
+            .time(int(row["start"]), WritePrecision.S)  # timestamp for the data point
         )
         points.append(point)
 
