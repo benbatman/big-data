@@ -67,3 +67,8 @@ docker exec anomaly_detection-spark-master-1 spark-submit \
 - Grafana: http://localhost:3000 (admin/admin)
 - InfluxDB: http://localhost:8086 (admin/password123)
 ```
+
+You should see something like:
+
+![influxdb dashboard](screenshots/influxdb.png)
+![grafana dashboard](screenshots/grafana.png)
